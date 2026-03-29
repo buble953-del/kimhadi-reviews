@@ -315,6 +315,7 @@ body {
 }
   .photo-only {
     width: auto;
-    justify-self: start;
+    margin-left: auto;
+    justify-self: end;
   }
 }

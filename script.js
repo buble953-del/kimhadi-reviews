@@ -1,39 +1,6 @@
-const reviews = [
-  {
-    review_id: "RV-20260329-2",
-    product_name: "발렌시아가",
-    product_option_or_size: "XL",
-    usual_size: "XL",
-    height_cm: 168,
-    weight_kg: 68,
-    fit_feedback: "오버핏",
-    rating: 5,
-    display_name: "테*터",
-    review_text: "너무 맘에드는 거래였습니다. 최고의 물건이에요 항상",
-    photo_url_public: "",
-    has_photo: false,
-    featured_flag: false,
-    sort_priority: 100,
-    published_at: "2026-03-29"
-  },
-  {
-    review_id: "RV-20260329-3",
-    product_name: "아디다스 트랙자켓",
-    product_option_or_size: "L",
-    usual_size: "M",
-    height_cm: 175,
-    weight_kg: 70,
-    fit_feedback: "정사이즈",
-    rating: 5,
-    display_name: "김**로",
-    review_text: "핏이 깔끔하고 데일리로 입기 좋아요. 생각보다 활용도가 높았습니다.",
-    photo_url_public: "",
-    has_photo: false,
-    featured_flag: true,
-    sort_priority: 90,
-    published_at: "2026-03-28"
-  }
-];
+const API_URL = "https://script.google.com/macros/s/AKfycbz6TeWsK_PzgYve2gXV4HH9jJlyYpo_inegBySmEmosUAPvZqTUqfl5VMnoVNQ7dDdr/exec";
+
+let reviews = [];
 
 const reviewsGrid = document.getElementById("reviewsGrid");
 const emptyState = document.getElementById("emptyState");
@@ -43,13 +10,44 @@ const sizeFilter = document.getElementById("sizeFilter");
 const fitFilter = document.getElementById("fitFilter");
 const photoOnlyFilter = document.getElementById("photoOnlyFilter");
 
-function init() {
-  populateSizeOptions();
+async function init() {
   bindEvents();
+  await loadReviews();
+  populateSizeOptions();
   renderReviews();
 }
 
+async function loadReviews() {
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+
+    reviews = data.map((item) => ({
+      review_id: item.review_id || "",
+      product_name: item.product_name || "",
+      product_option_or_size: item.product_option_or_size || "",
+      usual_size: item.usual_size || "",
+      height_cm: Number(item.height_cm || 0),
+      weight_kg: Number(item.weight_kg || 0),
+      fit_feedback: item.fit_feedback || "",
+      rating: Number(item.rating || 0),
+      display_name: item.display_name || "익명",
+      review_text: item.review_text || "",
+      photo_url_public: item.photo_url_public || "",
+      has_photo: String(item.has_photo).toLowerCase() === "true" || item.has_photo === true,
+      featured_flag: String(item.featured_flag).toLowerCase() === "true" || item.featured_flag === true,
+      sort_priority: Number(item.sort_priority || 999),
+      published_at: item.published_at || ""
+    }));
+  } catch (error) {
+    console.error("후기 데이터를 불러오지 못했습니다.", error);
+    reviews = [];
+  }
+}
+
 function populateSizeOptions() {
+  sizeFilter.innerHTML = `<option value="">전체 사이즈</option>`;
+
   const sizes = [...new Set(reviews.map((review) => review.product_option_or_size).filter(Boolean))];
   sizes.sort();
 
@@ -96,9 +94,9 @@ function getFilteredReviews() {
     })
     .sort((a, b) => {
       if (a.featured_flag !== b.featured_flag) {
-        return b.featured_flag - a.featured_flag;
+        return Number(b.featured_flag) - Number(a.featured_flag);
       }
-      return a.sort_priority - b.sort_priority;
+      return Number(a.sort_priority) - Number(b.sort_priority);
     });
 }
 
@@ -132,12 +130,14 @@ function renderReviews() {
       ? `<span class="featured-badge">베스트 후기</span>`
       : "";
 
+    const stars = "★".repeat(review.rating) + "☆".repeat(Math.max(0, 5 - review.rating));
+
     card.innerHTML = `
       ${imageSection}
       <div class="review-body">
         <div class="review-top">
           <h2 class="product-name">${review.product_name}</h2>
-          <div class="rating">${"★".repeat(review.rating)}${"☆".repeat(5 - review.rating)}</div>
+          <div class="rating">${stars}</div>
         </div>
 
         <div class="meta-list">

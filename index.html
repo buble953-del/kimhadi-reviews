@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>김하디 실구매 후기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">KIMHADI REVIEWS</p>
+        <h1>김하디 실구매 후기</h1>
+        <p class="hero-text">
+          실구매 후기만 소개합니다. 사이즈 참고를 위해 키, 몸무게, 구매 사이즈 정보를 함께 제공합니다.
+          사진 후기는 공개 동의한 후기만 노출됩니다.
+        </p>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="filters">
+        <div class="filter-row">
+          <input type="text" id="searchInput" placeholder="상품명을 검색해보세요" />
+          <select id="sizeFilter">
+            <option value="">전체 사이즈</option>
+          </select>
+          <select id="fitFilter">
+            <option value="">전체 핏감</option>
+            <option value="정사이즈">정사이즈</option>
+            <option value="작음">작음</option>
+            <option value="큼">큼</option>
+            <option value="오버핏">오버핏</option>
+          </select>
+          <label class="photo-only">
+            <input type="checkbox" id="photoOnlyFilter" />
+            사진 후기만
+          </label>
+        </div>
+      </section>
+
+      <section class="summary">
+        <p id="resultCount">총 0개의 후기가 있습니다.</p>
+      </section>
+
+      <section id="reviewsGrid" class="reviews-grid"></section>
+
+      <section id="emptyState" class="empty-state hidden">
+        <p>조건에 맞는 후기가 없습니다.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

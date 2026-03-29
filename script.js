@@ -2,13 +2,19 @@ const API_URL = "https://script.google.com/macros/s/AKfycbz6TeWsK_PzgYve2gXV4HH9
 
 let reviews = [];
 
-const reviewsGrid = document.getElementById("reviewsGrid");
+const reviewsColumnLeft = document.getElementById("reviewsColumnLeft");
+const reviewsColumnRight = document.getElementById("reviewsColumnRight");
 const emptyState = document.getElementById("emptyState");
 const resultCount = document.getElementById("resultCount");
 const searchInput = document.getElementById("searchInput");
 const sizeFilter = document.getElementById("sizeFilter");
 const fitFilter = document.getElementById("fitFilter");
 const photoOnlyFilter = document.getElementById("photoOnlyFilter");
+
+const imageModal = document.getElementById("imageModal");
+const imageModalImg = document.getElementById("imageModalImg");
+const imageModalBackdrop = document.getElementById("imageModalBackdrop");
+const imageModalClose = document.getElementById("imageModalClose");
 
 async function init() {
   bindEvents();
@@ -34,8 +40,12 @@ async function loadReviews() {
       display_name: item.display_name || "익명",
       review_text: item.review_text || "",
       photo_url_public: item.photo_url_public || "",
-      has_photo: String(item.has_photo).toLowerCase() === "true" || item.has_photo === true,
-      featured_flag: String(item.featured_flag).toLowerCase() === "true" || item.featured_flag === true,
+      has_photo:
+        String(item.has_photo).toLowerCase() === "true" ||
+        item.has_photo === true,
+      featured_flag:
+        String(item.featured_flag).toLowerCase() === "true" ||
+        item.featured_flag === true,
       sort_priority: Number(item.sort_priority || 999),
       published_at: item.published_at || ""
     }));
@@ -48,7 +58,14 @@ async function loadReviews() {
 function populateSizeOptions() {
   sizeFilter.innerHTML = `<option value="">전체 사이즈</option>`;
 
-  const sizes = [...new Set(reviews.map((review) => review.product_option_or_size).filter(Boolean))];
+  const sizes = [
+    ...new Set(
+      reviews
+        .map((review) => review.product_option_or_size)
+        .filter(Boolean)
+    )
+  ];
+
   sizes.sort();
 
   sizes.forEach((size) => {
@@ -64,6 +81,29 @@ function bindEvents() {
   sizeFilter.addEventListener("change", renderReviews);
   fitFilter.addEventListener("change", renderReviews);
   photoOnlyFilter.addEventListener("change", renderReviews);
+
+  imageModalBackdrop.addEventListener("click", closeImageModal);
+  imageModalClose.addEventListener("click", closeImageModal);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeImageModal();
+    }
+  });
+}
+
+function openImageModal(src, alt = "") {
+  imageModalImg.src = src;
+  imageModalImg.alt = alt;
+  imageModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeImageModal() {
+  imageModal.classList.add("hidden");
+  imageModalImg.src = "";
+  imageModalImg.alt = "";
+  document.body.style.overflow = "";
 }
 
 function getFilteredReviews() {
@@ -103,7 +143,8 @@ function getFilteredReviews() {
 function renderReviews() {
   const filteredReviews = getFilteredReviews();
 
-  reviewsGrid.innerHTML = "";
+  reviewsColumnLeft.innerHTML = "";
+  reviewsColumnRight.innerHTML = "";
   resultCount.textContent = `총 ${filteredReviews.length}개의 후기가 있습니다.`;
 
   if (filteredReviews.length === 0) {
@@ -113,27 +154,28 @@ function renderReviews() {
 
   emptyState.classList.add("hidden");
 
-  filteredReviews.forEach((review) => {
+  filteredReviews.forEach((review, index) => {
     const card = document.createElement("article");
     card.className = "review-card";
-
-    const imageSection =
-      review.has_photo && review.photo_url_public
-        ? `
-          <div class="review-image-wrap">
-            <img class="review-image" src="${review.photo_url_public}" alt="${review.product_name}" />
-          </div>
-        `
-        : "";
 
     const featuredBadge = review.featured_flag
       ? `<span class="featured-badge">베스트 후기</span>`
       : "";
 
-    const stars = "★".repeat(review.rating) + "☆".repeat(Math.max(0, 5 - review.rating));
+    const stars =
+      "★".repeat(review.rating) +
+      "☆".repeat(Math.max(0, 5 - review.rating));
+
+    const thumbSection =
+      review.has_photo && review.photo_url_public
+        ? `
+          <button class="review-thumb-button" type="button" data-image="${review.photo_url_public}" data-product="${review.product_name}">
+            <img class="review-thumb" src="${review.photo_url_public}" alt="${review.product_name}" />
+          </button>
+        `
+        : "";
 
     card.innerHTML = `
-      ${imageSection}
       <div class="review-body">
         <div class="review-top">
           <h2 class="product-name">${review.product_name}</h2>
@@ -149,14 +191,31 @@ function renderReviews() {
 
         <p class="review-text">${review.review_text}</p>
 
-        <div class="review-footer">
-          <span>${review.display_name}</span>
-          ${featuredBadge}
+        <div class="review-bottom">
+          <div class="review-footer">
+            <span class="review-author">${review.display_name}</span>
+            ${featuredBadge}
+          </div>
+          ${thumbSection}
         </div>
       </div>
     `;
 
-    reviewsGrid.appendChild(card);
+    const thumbButton = card.querySelector(".review-thumb-button");
+    if (thumbButton) {
+      thumbButton.addEventListener("click", () => {
+        openImageModal(
+          thumbButton.dataset.image,
+          thumbButton.dataset.product || "후기 이미지"
+        );
+      });
+    }
+
+    if (index % 2 === 0) {
+      reviewsColumnLeft.appendChild(card);
+    } else {
+      reviewsColumnRight.appendChild(card);
+    }
   });
 }
 

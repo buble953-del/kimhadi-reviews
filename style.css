@@ -61,7 +61,7 @@ body {
 
 .filter-row {
   display: grid;
-  grid-template-columns: 1.6fr 0.8fr 0.8fr auto;
+  grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr auto;
   gap: 12px;
   align-items: center;
 }
@@ -293,6 +293,24 @@ body {
   font-size: 28px;
   line-height: 1;
   cursor: pointer;
+}
+
+.spec-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.spec-guide {
+  margin-top: 8px !important;
+  font-size: 13px !important;
+  color: #777 !important;
+}
+
+@media (max-width: 900px) {
+  .spec-inputs {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 900px) {

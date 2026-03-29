@@ -65,20 +65,44 @@ async function loadReviews() {
 function populateSizeOptions() {
   sizeFilter.innerHTML = `<option value="">전체 사이즈</option>`;
 
-  const sizes = [
-    ...new Set(
-      reviews
-        .map((review) => review.product_option_or_size)
-        .filter(Boolean)
-    )
-  ];
+  const rawSizes = reviews
+    .map((review) => review.product_option_or_size)
+    .filter((value) => value !== null && value !== undefined && String(value).trim() !== "");
 
-  sizes.sort();
+  const uniqueMap = new Map();
 
-  sizes.forEach((size) => {
+  rawSizes.forEach((size) => {
+    const displayValue = String(size).trim();
+    const normalizedValue = normalizeOptionSize(size);
+
+    if (!uniqueMap.has(normalizedValue)) {
+      uniqueMap.set(normalizedValue, displayValue);
+    }
+  });
+
+  const entries = Array.from(uniqueMap.entries());
+
+  entries.sort((a, b) => {
+    const aDisplay = a[1];
+    const bDisplay = b[1];
+
+    const aNum = Number(aDisplay);
+    const bNum = Number(bDisplay);
+
+    const aIsNum = !Number.isNaN(aNum);
+    const bIsNum = !Number.isNaN(bNum);
+
+    if (aIsNum && bIsNum) return aNum - bNum;
+    if (aIsNum) return -1;
+    if (bIsNum) return 1;
+
+    return aDisplay.localeCompare(bDisplay, "ko");
+  });
+
+  entries.forEach(([normalizedValue, displayValue]) => {
     const option = document.createElement("option");
-    option.value = size;
-    option.textContent = size;
+    option.value = normalizedValue;
+    option.textContent = displayValue;
     sizeFilter.appendChild(option);
   });
 }
@@ -163,6 +187,24 @@ function applySpecFilter() {
   renderReviews();
 }
 
+function normalizeText(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .trim();
+}
+
+function normalizeOptionSize(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .trim();
+}
+
+function hasActiveSpecFilter() {
+  return appliedHeightRange !== null || appliedWeightRange !== null;
+}
+
 function updateSpecGuide() {
   const parts = [];
 
@@ -185,36 +227,42 @@ function updateSpecGuide() {
 }
 
 function getFilteredReviews() {
-  const searchKeyword = searchInput.value.trim().toLowerCase();
-  const selectedSize = sizeFilter.value;
-  const selectedFit = fitFilter.value;
+  const searchKeyword = normalizeText(searchInput.value);
+  const selectedSize = normalizeOptionSize(sizeFilter.value);
+  const selectedFit = normalizeText(fitFilter.value);
   const photoOnly = photoOnlyFilter.checked;
 
   return reviews
     .filter((review) => {
+      const reviewProductName = normalizeText(review.product_name);
+      const reviewOptionSize = normalizeOptionSize(review.product_option_or_size);
+      const reviewFit = normalizeText(review.fit_feedback);
+      const reviewHeight = Number(review.height_cm || 0);
+      const reviewWeight = Number(review.weight_kg || 0);
+
       const matchesSearch =
-        !searchKeyword ||
-        review.product_name.toLowerCase().includes(searchKeyword);
+        searchKeyword === "" ||
+        reviewProductName.includes(searchKeyword);
 
       const matchesSize =
-        !selectedSize ||
-        review.product_option_or_size === selectedSize;
+        selectedSize === "" ||
+        reviewOptionSize === selectedSize;
 
       const matchesFit =
-        !selectedFit ||
-        review.fit_feedback === selectedFit;
+        selectedFit === "" ||
+        reviewFit === selectedFit;
 
       const matchesPhoto =
         !photoOnly ||
         review.has_photo === true;
 
       const matchesHeight =
-        !appliedHeightRange ||
-        matchesRange(Number(review.height_cm || 0), appliedHeightRange);
+        appliedHeightRange === null ||
+        matchesRange(reviewHeight, appliedHeightRange);
 
       const matchesWeight =
-        !appliedWeightRange ||
-        matchesRange(Number(review.weight_kg || 0), appliedWeightRange);
+        appliedWeightRange === null ||
+        matchesRange(reviewWeight, appliedWeightRange);
 
       return (
         matchesSearch &&

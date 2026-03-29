@@ -83,7 +83,6 @@ body {
   gap: 8px;
   white-space: nowrap;
   font-size: 14px;
-  justify-self: start;
 }
 
 .photo-only input[type="checkbox"] {

@@ -297,8 +297,25 @@ body {
 
 .spec-inputs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr auto;
   gap: 12px;
+  align-items: center;
+}
+
+.spec-find-button {
+  height: 46px;
+  border: 1px solid #111;
+  border-radius: 12px;
+  background: #111;
+  color: #fff;
+  padding: 0 16px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.spec-find-button:hover {
+  opacity: 0.92;
 }
 
 .spec-guide {
@@ -309,7 +326,11 @@ body {
 
 @media (max-width: 900px) {
   .spec-inputs {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr auto;
+  }
+
+  .spec-find-button {
+    width: 100%;
   }
 }
 

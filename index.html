@@ -23,21 +23,29 @@
       <section class="filters">
         <div class="filter-row">
           <input type="text" id="searchInput" placeholder="상품명을 검색해보세요" />
-          <select id="sizeFilter">
-            <option value="">전체 사이즈</option>
-          </select>
-          <select id="fitFilter">
-            <option value="">전체 핏감</option>
-            <option value="정사이즈">정사이즈</option>
-            <option value="작음">작음</option>
-            <option value="큼">큼</option>
-            <option value="오버핏">오버핏</option>
-          </select>
-          <label class="photo-only">
-            <input type="checkbox" id="photoOnlyFilter" />
-            사진 후기만
-          </label>
+
+            <select id="sizeFilter">
+              <option value="">전체 사이즈</option>
+            </select>
+
+            <select id="fitFilter">
+              <option value="">전체 핏감</option>
+              <option value="정사이즈">정사이즈</option>
+              <option value="작음">작음</option>
+              <option value="큼">큼</option>
+              <option value="오버핏">오버핏</option>
+            </select>
+
+        <div class="spec-inputs">
+          <input type="number" id="heightInput" placeholder="키(cm)" min="100" max="250" />
+          <input type="number" id="weightInput" placeholder="몸무게(kg)" min="20" max="300" />
         </div>
+      
+        <label class="photo-only">
+          <input type="checkbox" id="photoOnlyFilter" />
+          사진 후기만
+        </label>
+      </div>
       </section>
 
       <div id="imageModal" class="image-modal hidden">
@@ -48,9 +56,10 @@
   </div>
 </div>
 
-      <section class="summary">
+           <section class="summary">
         <p id="resultCount">총 0개의 후기가 있습니다.</p>
-      </section>
+        <p id="specGuide" class="spec-guide hidden"></p>
+           </section>
 
       <section id="reviewsMasonry" class="reviews-masonry">
   <div id="reviewsColumnLeft" class="reviews-column"></div>

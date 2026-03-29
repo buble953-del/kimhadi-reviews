@@ -1,6 +1,8 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzQYaZA8ixAf5fTivCH2B-jm9Xp7KiaQ_kRbQ1k2RSi2KeULU_5RZ_zWE5MrhDZWg4s/exec";
 
 let reviews = [];
+let appliedHeightRange = null;
+let appliedWeightRange = null;
 
 const reviewsColumnLeft = document.getElementById("reviewsColumnLeft");
 const reviewsColumnRight = document.getElementById("reviewsColumnRight");
@@ -13,6 +15,7 @@ const sizeFilter = document.getElementById("sizeFilter");
 const fitFilter = document.getElementById("fitFilter");
 const heightInput = document.getElementById("heightInput");
 const weightInput = document.getElementById("weightInput");
+const specFindButton = document.getElementById("specFindButton");
 const photoOnlyFilter = document.getElementById("photoOnlyFilter");
 
 const imageModal = document.getElementById("imageModal");
@@ -84,9 +87,21 @@ function bindEvents() {
   searchInput.addEventListener("input", renderReviews);
   sizeFilter.addEventListener("change", renderReviews);
   fitFilter.addEventListener("change", renderReviews);
-  heightInput.addEventListener("input", renderReviews);
-  weightInput.addEventListener("input", renderReviews);
   photoOnlyFilter.addEventListener("change", renderReviews);
+
+  specFindButton.addEventListener("click", applySpecFilter);
+
+  heightInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      applySpecFilter();
+    }
+  });
+
+  weightInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      applySpecFilter();
+    }
+  });
 
   imageModalBackdrop.addEventListener("click", closeImageModal);
   imageModalClose.addEventListener("click", closeImageModal);
@@ -137,15 +152,26 @@ function matchesRange(value, range) {
   return value >= range.min && value < range.max;
 }
 
-function updateSpecGuide(heightRange, weightRange) {
+function applySpecFilter() {
+  const enteredHeight = Number(heightInput.value || 0);
+  const enteredWeight = Number(weightInput.value || 0);
+
+  appliedHeightRange = getHeightRange(enteredHeight);
+  appliedWeightRange = getWeightRange(enteredWeight);
+
+  updateSpecGuide();
+  renderReviews();
+}
+
+function updateSpecGuide() {
   const parts = [];
 
-  if (heightRange) {
-    parts.push(`키 ${heightRange.label}`);
+  if (appliedHeightRange) {
+    parts.push(`키 ${appliedHeightRange.label}`);
   }
 
-  if (weightRange) {
-    parts.push(`몸무게 ${weightRange.label}`);
+  if (appliedWeightRange) {
+    parts.push(`몸무게 ${appliedWeightRange.label}`);
   }
 
   if (parts.length === 0) {
@@ -163,14 +189,6 @@ function getFilteredReviews() {
   const selectedSize = sizeFilter.value;
   const selectedFit = fitFilter.value;
   const photoOnly = photoOnlyFilter.checked;
-
-  const enteredHeight = Number(heightInput.value || 0);
-  const enteredWeight = Number(weightInput.value || 0);
-
-  const heightRange = getHeightRange(enteredHeight);
-  const weightRange = getWeightRange(enteredWeight);
-
-  updateSpecGuide(heightRange, weightRange);
 
   return reviews
     .filter((review) => {
@@ -191,12 +209,12 @@ function getFilteredReviews() {
         review.has_photo === true;
 
       const matchesHeight =
-        !heightRange ||
-        matchesRange(Number(review.height_cm || 0), heightRange);
+        !appliedHeightRange ||
+        matchesRange(Number(review.height_cm || 0), appliedHeightRange);
 
       const matchesWeight =
-        !weightRange ||
-        matchesRange(Number(review.weight_kg || 0), weightRange);
+        !appliedWeightRange ||
+        matchesRange(Number(review.weight_kg || 0), appliedWeightRange);
 
       return (
         matchesSearch &&

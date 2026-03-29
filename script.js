@@ -6,9 +6,13 @@ const reviewsColumnLeft = document.getElementById("reviewsColumnLeft");
 const reviewsColumnRight = document.getElementById("reviewsColumnRight");
 const emptyState = document.getElementById("emptyState");
 const resultCount = document.getElementById("resultCount");
+const specGuide = document.getElementById("specGuide");
+
 const searchInput = document.getElementById("searchInput");
 const sizeFilter = document.getElementById("sizeFilter");
 const fitFilter = document.getElementById("fitFilter");
+const heightInput = document.getElementById("heightInput");
+const weightInput = document.getElementById("weightInput");
 const photoOnlyFilter = document.getElementById("photoOnlyFilter");
 
 const imageModal = document.getElementById("imageModal");
@@ -80,6 +84,8 @@ function bindEvents() {
   searchInput.addEventListener("input", renderReviews);
   sizeFilter.addEventListener("change", renderReviews);
   fitFilter.addEventListener("change", renderReviews);
+  heightInput.addEventListener("input", renderReviews);
+  weightInput.addEventListener("input", renderReviews);
   photoOnlyFilter.addEventListener("change", renderReviews);
 
   imageModalBackdrop.addEventListener("click", closeImageModal);
@@ -106,11 +112,65 @@ function closeImageModal() {
   document.body.style.overflow = "";
 }
 
+function getHeightRange(height) {
+  if (!height || height < 100) return null;
+  const start = Math.floor(height / 5) * 5;
+  return {
+    min: start,
+    max: start + 5,
+    label: `${start}~${start + 5}cm`
+  };
+}
+
+function getWeightRange(weight) {
+  if (!weight || weight < 20) return null;
+  const start = Math.floor(weight / 5) * 5;
+  return {
+    min: start,
+    max: start + 5,
+    label: `${start}~${start + 5}kg`
+  };
+}
+
+function matchesRange(value, range) {
+  if (!range) return true;
+  return value >= range.min && value < range.max;
+}
+
+function updateSpecGuide(heightRange, weightRange) {
+  const parts = [];
+
+  if (heightRange) {
+    parts.push(`키 ${heightRange.label}`);
+  }
+
+  if (weightRange) {
+    parts.push(`몸무게 ${weightRange.label}`);
+  }
+
+  if (parts.length === 0) {
+    specGuide.textContent = "";
+    specGuide.classList.add("hidden");
+    return;
+  }
+
+  specGuide.textContent = `비슷한 체형 기준: ${parts.join(" / ")}`;
+  specGuide.classList.remove("hidden");
+}
+
 function getFilteredReviews() {
   const searchKeyword = searchInput.value.trim().toLowerCase();
   const selectedSize = sizeFilter.value;
   const selectedFit = fitFilter.value;
   const photoOnly = photoOnlyFilter.checked;
+
+  const enteredHeight = Number(heightInput.value || 0);
+  const enteredWeight = Number(weightInput.value || 0);
+
+  const heightRange = getHeightRange(enteredHeight);
+  const weightRange = getWeightRange(enteredWeight);
+
+  updateSpecGuide(heightRange, weightRange);
 
   return reviews
     .filter((review) => {
@@ -130,7 +190,22 @@ function getFilteredReviews() {
         !photoOnly ||
         review.has_photo === true;
 
-      return matchesSearch && matchesSize && matchesFit && matchesPhoto;
+      const matchesHeight =
+        !heightRange ||
+        matchesRange(Number(review.height_cm || 0), heightRange);
+
+      const matchesWeight =
+        !weightRange ||
+        matchesRange(Number(review.weight_kg || 0), weightRange);
+
+      return (
+        matchesSearch &&
+        matchesSize &&
+        matchesFit &&
+        matchesPhoto &&
+        matchesHeight &&
+        matchesWeight
+      );
     })
     .sort((a, b) => {
       if (a.featured_flag !== b.featured_flag) {

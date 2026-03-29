@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbz6TeWsK_PzgYve2gXV4HH9jJlyYpo_inegBySmEmosUAPvZqTUqfl5VMnoVNQ7dDdr/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzQYaZA8ixAf5fTivCH2B-jm9Xp7KiaQ_kRbQ1k2RSi2KeULU_5RZ_zWE5MrhDZWg4s/exec";
 
 let reviews = [];
 

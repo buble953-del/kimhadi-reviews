@@ -66,7 +66,7 @@ body {
   align-items: center;
 }
 
-.filter-row input,
+.filter-row input[type="text"],
 .filter-row select {
   width: 100%;
   height: 46px;
@@ -78,11 +78,20 @@ body {
 }
 
 .photo-only {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
   font-size: 14px;
+  justify-self: start;
+}
+
+.photo-only input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: #111;
 }
 
 .summary {
@@ -303,5 +312,10 @@ body {
 
   .hero h1 {
     font-size: 34px;
+  }
+}
+  .photo-only {
+    width: auto;
+    justify-self: start;
   }
 }

@@ -169,9 +169,11 @@ function renderReviews() {
     const thumbSection =
       review.has_photo && review.photo_url_public
         ? `
-          <button class="review-thumb-button" type="button" data-image="${review.photo_url_public}" data-product="${review.product_name}">
-            <img class="review-thumb" src="${review.photo_url_public}" alt="${review.product_name}" />
-          </button>
+          <div class="review-thumb-row">
+            <button class="review-thumb-button" type="button" data-image="${review.photo_url_public}" data-product="${review.product_name}">
+              <img class="review-thumb" src="${review.photo_url_public}" alt="${review.product_name}" />
+            </button>
+          </div>
         `
         : "";
 
@@ -189,14 +191,13 @@ function renderReviews() {
           <span class="meta-chip">${review.fit_feedback}</span>
         </div>
 
+        ${thumbSection}
+
         <p class="review-text">${review.review_text}</p>
 
-        <div class="review-bottom">
-          <div class="review-footer">
-            <span class="review-author">${review.display_name}</span>
-            ${featuredBadge}
-          </div>
-          ${thumbSection}
+        <div class="review-footer">
+          <span class="review-author">${review.display_name}</span>
+          ${featuredBadge}
         </div>
       </div>
     `;

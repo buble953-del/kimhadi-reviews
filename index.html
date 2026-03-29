@@ -40,11 +40,22 @@
         </div>
       </section>
 
+      <div id="imageModal" class="image-modal hidden">
+  <div class="image-modal-backdrop" id="imageModalBackdrop"></div>
+  <div class="image-modal-content">
+    <button id="imageModalClose" class="image-modal-close" aria-label="닫기">×</button>
+    <img id="imageModalImg" class="image-modal-img" src="" alt="후기 이미지 확대보기" />
+  </div>
+</div>
+
       <section class="summary">
         <p id="resultCount">총 0개의 후기가 있습니다.</p>
       </section>
 
-      <section id="reviewsGrid" class="reviews-grid"></section>
+      <section id="reviewsMasonry" class="reviews-masonry">
+  <div id="reviewsColumnLeft" class="reviews-column"></div>
+  <div id="reviewsColumnRight" class="reviews-column"></div>
+</section>
 
       <section id="emptyState" class="empty-state hidden">
         <p>조건에 맞는 후기가 없습니다.</p>
